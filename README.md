@@ -9,7 +9,7 @@ Buckeye Marketplace reduces scam risk and meetup friction by:
 - **Messaging + meetup coordination** (smooth handoff between buyer/seller)
 - **Moderation & reporting** (safety)
 
-## Feature Prioritization (MoSCoW)
+## Feature Prioritization 
 
 ### Must
 - OSU Login / Authentication – Students log in with OSU email  
