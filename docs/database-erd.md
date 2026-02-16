@@ -20,18 +20,42 @@ It focuses on **main tables + relationships** (not column-level details).
 ## Entity Relationship Diagram (Mermaid)
 
 ```mermaid
-erDiagram
-  USER ||--o{ LISTING : creates
-  LISTING ||--o{ LISTING_IMAGE : has
+flowchart LR
 
-  USER ||--o{ MESSAGE_THREAD : participates_in
-  LISTING ||--o{ MESSAGE_THREAD : about
-  MESSAGE_THREAD ||--o{ MESSAGE : contains
-  USER ||--o{ MESSAGE : sends
+  %% Core domain
+  subgraph Core
+    U[USER]
+    L[LISTING]
+    LI[LISTING_IMAGE]
+  end
 
-  USER ||--o{ REVIEW : writes
-  USER ||--o{ REVIEW : receives
-  LISTING ||--o{ REVIEW : related_to
+  %% Messaging domain
+  subgraph Messaging
+    MT[MESSAGE_THREAD]
+    M[MESSAGE]
+  end
 
-  USER ||--o{ REPORT : submits
-  LISTING ||--o{ REPORT : reported_for
+  %% Trust & safety domain
+  subgraph Trust_&_Safety
+    R[REVIEW]
+    RP[REPORT]
+  end
+
+  %% Core relationships
+  U -->|creates| L
+  L -->|has| LI
+
+  %% Messaging relationships
+  U -->|participates_in| MT
+  L -->|about| MT
+  MT -->|contains| M
+  U -->|sends| M
+
+  %% Review relationships
+  U -->|writes| R
+  U -->|receives| R
+  L -->|related_to| R
+
+  %% Report relationships
+  U -->|submits| RP
+  L -->|reported_for| RP
