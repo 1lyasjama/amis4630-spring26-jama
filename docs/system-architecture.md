@@ -1,28 +1,35 @@
-# System Architecture
+# System Architecture (High-Level) — Buckeye Marketplace
 
-## Connection to User Needs (Milestone 1)
+## 1. Purpose
+Buckeye Marketplace is a full-stack marketplace for OSU students to list items, browse/search listings, message sellers, and manage listing status (available/sold). The system is designed to reduce scams using OSU login, support clear listing details (photos + descriptions), and make meetups easier (messaging + scheduling).
 
-Users identified:
-- Scam concerns
-- Unclear listing details
-- Difficulty coordinating meetups
+---
 
-This architecture supports:
-- Verified login for trust
-- Centralized searchable catalog
-- Messaging system for coordination
-- Image storage for clear item details
+## 2. Tech Stack (Course Stack)
+- **Frontend:** React + TypeScript
+- **Backend:** .NET Web API
+- **Database:** Azure SQL (relational)
+- **Auth:** OSU / Microsoft login (OAuth)
+- **Storage:** Image storage (Azure Blob or similar)
+- **Hosting:** Azure (App Service / Static Web Apps + API + DB)
 
-## High-Level Architecture
+---
 
-Frontend: React + TypeScript  
-Backend: .NET Web API  
-Database: Azure SQL  
-Authentication: OSU / Microsoft Login  
+## 3. High-Level Architecture Diagram
 
-Flow:
+```mermaid
+flowchart LR
+  U[Student User] -->|Browser| FE[React Frontend]
+  FE -->|HTTPS REST API| API[.NET Web API]
 
-User → React Frontend → .NET API → SQL Database  
+  API --> DB[(Azure SQL Database)]
+  API --> IMG[(Image Storage)]
+  API --> AUTH[OSU/Microsoft Authentication]
+  API --> ADMIN[Admin Moderation Tools]
 
-Authentication Flow:
-User → Microsoft Login → Token → Backend validation
+  subgraph Azure Cloud
+    FE
+    API
+    DB
+    IMG
+  end
