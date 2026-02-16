@@ -1,10 +1,24 @@
-# ADR-005: Cloud Deployment
+# ADR-005: Cloud Deployment Strategy (Azure)
 
-Decision:
-Deploy to Azure.
+## Context
+Application requires:
+- Hosting for frontend
+- Hosting for backend API
+- Managed database service
+- Scalable infrastructure
 
-Why:
-Aligns with tech stack and supports scalability.
+## Decision
+Deploy entire system on **Microsoft Azure**.
 
-AI Usage:
-Used ChatGPT to evaluate hosting options.
+## Rationale
+- Native support for .NET backend
+- Managed Azure SQL
+- Integrated authentication services
+- Scalable deployment options
+
+## Impact
+Frontend, API, and database operate within unified cloud environment.
+Simplifies infrastructure management.
+
+## AI Usage
+ChatGPT was used to evaluate hosting platform tradeoffs.

@@ -1,35 +1,72 @@
-# System Architecture (High-Level) — Buckeye Marketplace
+# System Architecture (High-Level)
 
-## 1. Purpose
-Buckeye Marketplace is a full-stack marketplace for OSU students to list items, browse/search listings, message sellers, and manage listing status (available/sold). The system is designed to reduce scams using OSU login, support clear listing details (photos + descriptions), and make meetups easier (messaging + scheduling).
+## Overview
 
----
-
-## 2. Tech Stack (Course Stack)
-- **Frontend:** React + TypeScript
-- **Backend:** .NET Web API
-- **Database:** Azure SQL (relational)
-- **Auth:** OSU / Microsoft login (OAuth)
-- **Storage:** Image storage (Azure Blob or similar)
-- **Hosting:** Azure (App Service / Static Web Apps + API + DB)
+Buckeye Marketplace is a secure full-stack marketplace system designed for Ohio State students.  
+The architecture separates responsibilities into presentation, business logic, and data layers.
 
 ---
 
-## 3. High-Level Architecture Diagram
+## High-Level Architecture Diagram
 
 ```mermaid
 flowchart LR
-  U[Student User] -->|Browser| FE[React Frontend]
-  FE -->|HTTPS REST API| API[.NET Web API]
 
-  API --> DB[(Azure SQL Database)]
-  API --> IMG[(Image Storage)]
-  API --> AUTH[OSU/Microsoft Authentication]
-  API --> ADMIN[Admin Moderation Tools]
-
-  subgraph Azure Cloud
-    FE
-    API
-    DB
-    IMG
+  subgraph Client
+    U[Student User]
   end
+
+  subgraph Frontend
+    FE[React + TypeScript SPA]
+  end
+
+  subgraph Backend
+    API[.NET Web API]
+  end
+
+  subgraph Data
+    DB[(Azure SQL Database)]
+    IMG[(Cloud Image Storage)]
+  end
+
+  subgraph External
+    AUTH[OSU / Microsoft Authentication]
+  end
+
+  U --> FE
+  FE -->|HTTPS REST API| API
+  FE -->|Login Redirect| AUTH
+  AUTH -->|JWT Token| FE
+  API --> DB
+  API --> IMG
+```
+
+---
+
+## Architectural Layers
+
+### 1️⃣ Presentation Layer (Frontend)
+- Built with React + TypeScript
+- Handles UI rendering
+- Manages authentication token
+- Sends REST requests to backend
+
+### 2️⃣ Application Layer (Backend)
+- Built with .NET Web API
+- Contains business rules
+- Validates authentication tokens
+- Handles listing, messaging, reviews, reporting logic
+
+### 3️⃣ Data Layer
+- Azure SQL stores relational data
+- Cloud image storage stores listing photos
+
+---
+
+## Why This Architecture Works
+
+- Secure identity via OSU login
+- Clean separation of concerns
+- Scalable backend API
+- Structured relational database
+- Independent image storage for performance

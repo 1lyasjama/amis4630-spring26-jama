@@ -1,10 +1,29 @@
-# ADR-001: Frontend Framework
+# ADR-001: Frontend Framework (React + TypeScript)
 
-Decision:
-Use React with TypeScript.
+## Context
+Buckeye Marketplace requires:
+- Dynamic UI updates (filters, search, messaging)
+- Reusable listing components
+- Strong typing for maintainability
+- Clear separation of UI logic and API calls
 
-Why:
-Supports reusable components and aligns with course stack.
+## Decision
+Use **React with TypeScript**.
 
-AI Usage:
-Used ChatGPT to summarize pros/cons.
+## Rationale
+React enables:
+- Component-based architecture (listing cards, forms, filters)
+- Efficient rendering of dynamic data
+- Clear state management patterns
+
+TypeScript adds:
+- Static type checking
+- Safer refactoring
+- Better developer experience for a growing project
+
+## Impact
+Frontend communicates with backend via REST API.
+UI logic is fully separated from database and authentication logic.
+
+## AI Usage
+ChatGPT was used to compare frontend framework options and summarize tradeoffs.

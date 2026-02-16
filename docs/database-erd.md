@@ -1,38 +1,37 @@
-# Database Schema (ERD)
+# Database ERD (High-Level)
 
-## Main Tables
+## Overview
+This ERD shows the core entities for **Buckeye Marketplace** and how they relate at a high level.
+It focuses on **main tables + relationships** (not column-level details).
 
-- User
-- Listing
-- Category
-- ListingImage
-- Review
-- MessageThread
-- Message
-- Favorite
-- Cart
-- CartItem
+---
 
-## Relationships
+## Main Entities
+- **User**: OSU-authenticated student account
+- **Listing**: items posted for sale
+- **ListingImage**: images attached to a listing
+- **MessageThread**: conversation context between two users about a listing
+- **Message**: individual messages inside a thread
+- **Review**: rating/feedback between users after a transaction/interaction
+- **Report**: flags for unsafe/fraud/violations (moderation)
 
-User (1) → (Many) Listing  
-User (1) → (Many) Review  
-Listing (1) → (Many) ListingImage  
-Listing (1) → (Many) Review  
-Category (1) → (Many) Listing  
-MessageThread (1) → (Many) Message  
-Cart (1) → (Many) CartItem  
+---
 
-## How This Supports User Stories
+## Entity Relationship Diagram (Mermaid)
 
-Trust:
-User tied to verified login.
+```mermaid
+erDiagram
+  USER ||--o{ LISTING : creates
+  LISTING ||--o{ LISTING_IMAGE : has
 
-Clear Listings:
-Listing + ListingImage supports photos.
+  USER ||--o{ MESSAGE_THREAD : participates_in
+  LISTING ||--o{ MESSAGE_THREAD : about
+  MESSAGE_THREAD ||--o{ MESSAGE : contains
+  USER ||--o{ MESSAGE : sends
 
-Communication:
-MessageThread + Message supports coordination.
+  USER ||--o{ REVIEW : writes
+  USER ||--o{ REVIEW : receives
+  LISTING ||--o{ REVIEW : related_to
 
-Accountability:
-Review supports ratings.
+  USER ||--o{ REPORT : submits
+  LISTING ||--o{ REPORT : reported_for

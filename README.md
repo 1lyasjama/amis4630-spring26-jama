@@ -1,83 +1,60 @@
-# Buckeye Marketplace
-AMIS 4630 – Spring 2026  
-Milestone 2: Architecture Design & Frontend Foundation
+# Buckeye Marketplace (AMIS 4630)
 
----
+A full-stack marketplace for OSU students to buy/sell items safely using OSU login.
 
-## 1. Business System Summary
+## Business System Summary
+Buckeye Marketplace reduces scam risk and meetup friction by:
+- **Verified OSU/Microsoft login** (trust + accountability)
+- **Structured listings** with photos/details (clarity)
+- **Messaging + meetup coordination** (smooth handoff between buyer/seller)
+- **Moderation & reporting** (safety)
 
-Buckeye Marketplace is a secure campus-only marketplace for OSU students to buy and sell items.
-
-Problem:
-- Scam risk on Facebook Marketplace
-- No verified student identity
-- Poor coordination for meetups
-
-Solution:
-- OSU email login verification
-- Structured listing system
-- Messaging between buyers and sellers
-- Ratings and reporting system
-
----
-
-## 2. Feature Prioritization (MoSCoW)
+## Feature Prioritization (MoSCoW)
 
 ### Must
-- OSU Login / Authentication
-- User Profiles
-- Create Listing
-- Edit/Delete Listing
-- Listing Photos
-- Browse Listings Feed
-- Search Listings
-- Filter & Sort Listings
-- Listing Status (Available/Sold)
+- OSU Login / Authentication – Students log in with OSU email  
+- User Profiles – Buyer and seller profiles  
+- Create Listing – Post item for sale  
+- Edit/Delete Listing – Manage listings  
+- Listing Photos – Upload item images  
+- Browse Listings Feed – Scroll all listings  
+- Search Listings – Keyword search  
+- Filter & Sort Listings – Price/category filters  
+- Listing Status – Available / Sold  
 
 ### Should
-- Payment Preference Display
-- Meetup Scheduling
-- Save/Favorite Listings
-- Notifications
+- Payment Preference Display – Cash/Venmo  
+- Meetup Scheduling – Plan pickup  
+- Save/Favorite Listings – Bookmark items  
+- Notifications – Messages/offers alerts  
 
 ### Could
-- Reviews & Ratings
-- Report Listing/User
-- Admin Dashboard
-- Offer / Negotiation
-- Shopping Cart
-- Product Catalog
+- Feature: Product Catalog  
+- Feature: Shopping Cart  
+- Feature: Admin Dashboard  
+- Reviews & Ratings – Rate users  
+- Report Listing/User – Flag issues  
+- Offer / Negotiation – Send offers  
 
----
+### Done
+- (Move items here only after implemented in code + tested)
 
-## 3. Architecture Decisions
+## Architecture Decisions (ADRs)
+We document key decisions in `/docs/adr/`:
+- ADR-001 Frontend: React + TypeScript
+- ADR-002 Backend: .NET Web API
+- ADR-003 Database: Azure SQL (relational)
+- ADR-004 Authentication: OSU/Microsoft Login
+- ADR-005 Cloud: Azure deployment
 
-See `/docs/adr` folder for full ADR documents.
+## Documentation Table of Contents
+- `/docs/system-architecture.md` — High-level system architecture + request flows
+- `/docs/database-erd.md` — ERD + relationships
+- `/docs/component-architecture-product-catalog.md` — Frontend component design
+- `/docs/adr/` — Architecture Decision Records
 
-Key decisions:
-- Frontend: React + TypeScript
-- Backend: .NET Web API
-- Database: Azure SQL
-- Authentication: OSU / Microsoft Login
-- Hosting: Azure Cloud
-
----
-
-## 4. Documentation Table of Contents
-
-- System Architecture: `/docs/system-architecture.md`
-- Database ERD: `/docs/database-erd.md`
-- Component Architecture: `/docs/component-architecture-product-catalog.md`
-- ADRs: `/docs/adr`
-
----
-
-## 5. AI Usage Disclosure
-
-ChatGPT was used for:
-- Comparing architecture options
-- Drafting ADR structures
-- Generating Mermaid diagrams
-- Improving documentation clarity
-
-
+## AI Tooling Disclosure
+AI tools (ChatGPT) were used to:
+- Compare architecture options (React vs others, DB options, hosting)
+- Draft documentation structure (ADRs, diagrams, flow descriptions)
+All AI usage is noted in ADRs and commit messages.

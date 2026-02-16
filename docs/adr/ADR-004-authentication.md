@@ -1,10 +1,21 @@
-# ADR-004: Authentication
+# ADR-004: Authentication Strategy (OSU / Microsoft Login)
 
-Decision:
-Use OSU / Microsoft Login.
+## Context
+User research identified scam concerns and trust issues.
+Marketplace requires identity verification.
 
-Why:
-Improves trust and reduces scams.
+## Decision
+Use **OSU / Microsoft authentication (OAuth-based login)**.
 
-AI Usage:
-Used ChatGPT to outline authentication tradeoffs.
+## Rationale
+- Ties identity to verified OSU email
+- Reduces anonymous misuse
+- Eliminates need to store passwords
+- Leverages secure external provider
+
+## Impact
+Frontend redirects users to Microsoft login.
+Backend validates access tokens before serving protected endpoints.
+
+## AI Usage
+ChatGPT was used to outline authentication flow and security tradeoffs.
