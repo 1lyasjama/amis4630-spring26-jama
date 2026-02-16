@@ -20,42 +20,48 @@ It focuses on **main tables + relationships** (not column-level details).
 ## Entity Relationship Diagram (Mermaid)
 
 ```mermaid
-flowchart LR
+flowchart TB
 
-  %% Core domain
+  %% ===== Core domain (top / center) =====
   subgraph Core
+    direction TB
     U[USER]
     L[LISTING]
+    U -->|creates| L
+  end
+
+  %% ===== Left side: Listing images =====
+  subgraph Media
+    direction TB
     LI[LISTING_IMAGE]
   end
+  L -->|has| LI
 
-  %% Messaging domain
+  %% ===== Bottom-left: Messaging =====
   subgraph Messaging
+    direction TB
     MT[MESSAGE_THREAD]
     M[MESSAGE]
+    MT -->|contains| M
   end
-
-  %% Trust & safety domain
-  subgraph Trust_&_Safety
-    R[REVIEW]
-    RP[REPORT]
-  end
-
-  %% Core relationships
-  U -->|creates| L
-  L -->|has| LI
 
   %% Messaging relationships
   U -->|participates_in| MT
   L -->|about| MT
-  MT -->|contains| M
   U -->|sends| M
 
-  %% Review relationships
+  %% ===== Bottom-right: Trust & Safety =====
+  subgraph Trust_and_Safety
+    direction TB
+    R[REVIEW]
+    RP[REPORT]
+  end
+
+  %% Reviews
   U -->|writes| R
   U -->|receives| R
   L -->|related_to| R
 
-  %% Report relationships
+  %% Reports
   U -->|submits| RP
   L -->|reported_for| RP
