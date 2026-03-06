@@ -1,0 +1,6 @@
+@BuckeyeMarketplaceApi_HostAddress = http://localhost:5023
+
+GET {{BuckeyeMarketplaceApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
