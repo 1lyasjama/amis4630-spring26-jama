@@ -1,6 +1,7 @@
 # .NET
 api/bin/
 api/obj/
+*.db
 
 # Node
 frontend/node_modules/
