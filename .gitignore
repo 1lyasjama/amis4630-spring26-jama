@@ -2,6 +2,9 @@
 api/bin/
 api/obj/
 *.db
+*.db-shm
+*.db-wal
+*.db-journal
 
 # Node
 frontend/node_modules/

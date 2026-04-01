@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Product } from "../types/Product";
+import { useCart } from "../context/CartContext";
 
 const API_BASE = "http://localhost:5023/api";
 
@@ -9,6 +10,8 @@ function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const { addToCart, state } = useCart();
 
   useEffect(() => {
     fetch(`${API_BASE}/products/${id}`)
@@ -20,6 +23,13 @@ function ProductDetailPage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    setAdding(true);
+    await addToCart(product.id);
+    setAdding(false);
+  };
 
   if (loading) return <p className="loading">Loading product...</p>;
   if (error) return <p className="error">Error: {error}</p>;
@@ -41,6 +51,16 @@ function ProductDetailPage() {
           <p className="product-detail-price">${product.price.toFixed(2)}</p>
           <span className="product-detail-category">{product.category}</span>
           <p className="product-detail-description">{product.description}</p>
+          <button
+            className="add-to-cart-btn"
+            onClick={handleAddToCart}
+            disabled={adding}
+          >
+            {adding ? "Adding..." : "Add to Cart"}
+          </button>
+          {state.successMessage && (
+            <p className="success-message">{state.successMessage}</p>
+          )}
           <div className="product-detail-meta">
             <p><strong>Seller:</strong> {product.sellerName}</p>
             <p><strong>Posted:</strong> {formattedDate}</p>

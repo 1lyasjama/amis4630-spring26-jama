@@ -9,15 +9,22 @@ Buckeye Marketplace reduces scam risk and meetup friction by:
 - **Messaging + meetup coordination** (smooth handoff between buyer/seller)
 - **Moderation & reporting** (safety)
 
-## Current Status — Milestone 3: Product Catalog (Vertical Slice 1)
-The first working feature is live. Users can browse a list of products and click into any product to see full details. Data flows from a .NET Web API (in-memory data store) through to the React frontend.
+## Current Status — Milestone 4: Shopping Cart (Vertical Slice 2)
+The shopping cart feature is now live end-to-end. Users can browse products, add items to their cart from both the product listing and detail pages, adjust quantities, remove individual items, clear the entire cart, and see totals update in real time. Cart data persists in the database across page refreshes and browser sessions.
 
 ### What's Working
 - Product List page showing all available listings as cards
 - Product Detail page with full info for each item
-- Client-side routing between list and detail views (React Router)
-- Two API endpoints: `GET /api/products` and `GET /api/products/{id}`
-- Loading and empty states handled in the UI
+- **Add to Cart** from both product listing cards and detail pages
+- **Shopping Cart page** with item list, quantity controls, and order summary
+- **Cart state management** using React Context + useReducer
+- **Cart item count badge** visible in the navigation header
+- **5 cart API endpoints**: GET, POST, PUT, DELETE (item), DELETE (clear)
+- **Database persistence** via Entity Framework Core with SQLite
+- **Optimistic UI updates** for smooth cart interactions
+- Loading states, error messages, and success feedback throughout
+- Empty cart state with prompt to browse products
+- Responsive layout for cart page
 - CORS configured for local development
 
 ## How to Run Locally
@@ -53,26 +60,67 @@ Open http://localhost:5173 in your browser. You should see the product listings 
 
 ## Project Structure
 ```
-├── api/                          # .NET Web API
+├── api/                              # .NET Web API
 │   ├── Controllers/
-│   │   └── ProductsController.cs # GET /api/products, GET /api/products/{id}
+│   │   ├── ProductsController.cs     # GET /api/products, GET /api/products/{id}
+│   │   └── CartController.cs         # GET, POST, PUT, DELETE cart endpoints
 │   ├── Models/
-│   │   └── Product.cs            # Product data model
-│   └── Program.cs                # App config, CORS, routing
-├── frontend/                     # React + TypeScript (Vite)
+│   │   ├── Product.cs                # Product entity
+│   │   ├── Cart.cs                   # Cart entity (user's cart)
+│   │   └── CartItem.cs               # CartItem entity (line item in cart)
+│   ├── Dtos/
+│   │   ├── AddToCartRequest.cs       # POST request body
+│   │   ├── UpdateCartItemRequest.cs  # PUT request body
+│   │   ├── CartResponse.cs           # Full cart response
+│   │   └── CartItemResponse.cs       # Individual cart item response
+│   ├── Validators/
+│   │   ├── AddToCartRequestValidator.cs
+│   │   └── UpdateCartItemRequestValidator.cs
+│   ├── Data/
+│   │   └── AppDbContext.cs           # EF Core context + seed data
+│   ├── Migrations/                   # EF Core migrations
+│   └── Program.cs                    # App config, CORS, DI
+├── frontend/                         # React + TypeScript (Vite)
 │   └── src/
 │       ├── components/
-│       │   ├── ProductCard.tsx    # Individual product card (molecule)
-│       │   └── ProductList.tsx    # Grid of product cards (organism)
+│       │   ├── Header.tsx            # Navigation bar with cart count badge
+│       │   ├── ProductCard.tsx       # Product card with Add to Cart button
+│       │   ├── ProductList.tsx       # Grid of product cards
+│       │   ├── CartItemCard.tsx      # Cart line item with qty controls
+│       │   └── CartSummary.tsx       # Order summary with totals
+│       ├── context/
+│       │   └── CartContext.tsx        # useReducer + Context for cart state
 │       ├── pages/
-│       │   ├── CatalogPage.tsx    # Product list page (fetches from API)
-│       │   └── ProductDetailPage.tsx # Single product detail page
+│       │   ├── CatalogPage.tsx       # Product list page
+│       │   ├── ProductDetailPage.tsx # Product detail with Add to Cart
+│       │   └── CartPage.tsx          # Shopping cart page
+│       ├── services/
+│       │   └── cartService.ts        # Cart API service layer
 │       ├── types/
-│       │   └── Product.ts        # TypeScript interface for Product
-│       ├── App.tsx               # Routes (React Router)
-│       └── App.css               # Styles
-└── docs/                         # Architecture & design docs
+│       │   ├── Product.ts            # Product TypeScript interface
+│       │   └── Cart.ts               # Cart/CartItem TypeScript interfaces
+│       ├── App.tsx                   # Routes + CartProvider
+│       └── App.css                   # Styles
+└── docs/                             # Architecture & design docs
+    └── ai-usage-m4.md               # AI tool usage for Milestone 4
 ```
+
+## API Endpoints
+
+### Products
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/products` | List all products |
+| GET | `/api/products/{id}` | Get product by ID |
+
+### Cart
+| Method | Endpoint | Description | Status Codes |
+|--------|----------|-------------|--------------|
+| GET | `/api/cart` | Get cart contents | 200, 404 |
+| POST | `/api/cart` | Add item to cart | 201, 400, 404 |
+| PUT | `/api/cart/{cartItemId}` | Update item quantity | 200, 400, 404 |
+| DELETE | `/api/cart/{cartItemId}` | Remove item from cart | 204, 404 |
+| DELETE | `/api/cart/clear` | Clear entire cart | 204, 404 |
 
 ## Feature Prioritization
 
@@ -94,8 +142,6 @@ Open http://localhost:5173 in your browser. You should see the product listings 
 - Notifications – Messages/offers alerts
 
 ### Could
-- Feature: Product Catalog
-- Feature: Shopping Cart
 - Feature: Admin Dashboard
 - Reviews & Ratings – Rate users
 - Report Listing/User – Flag issues
@@ -103,6 +149,7 @@ Open http://localhost:5173 in your browser. You should see the product listings 
 
 ### Done
 - Product Catalog — Browse all listings + view product details (Milestone 3)
+- Shopping Cart — Add/remove/update cart items with persistent storage (Milestone 4)
 
 ## Architecture Decisions (ADRs)
 We document key decisions in `/docs/adr/`:
@@ -116,14 +163,13 @@ We document key decisions in `/docs/adr/`:
 - `/docs/system-architecture.md` — High-level system architecture + request flows
 - `/docs/database-erd.md` — ERD + relationships
 - `/docs/component-architecture-product-catalog.md` — Frontend component design
+- `/docs/ai-usage-m4.md` — AI tool usage for Milestone 4
 - `/docs/adr/` — Architecture Decision Records
 
-## AI Tooling Disclosure (Milestone 3)
+## AI Tooling Disclosure
 
-### Summary
-I used GitHub Copilot and Claude as productivity aids during the Milestone 3 implementation. All AI-generated code was reviewed, understood, and modified before committing. 
-
-### What AI Helped With
+### Milestone 3
+I used GitHub Copilot and Claude as productivity aids during the Milestone 3 implementation. All AI-generated code was reviewed, understood, and modified before committing.
 
 | Task | AI Tool | What I Did |
 |------|---------|------------|
@@ -134,20 +180,5 @@ I used GitHub Copilot and Claude as productivity aids during the Milestone 3 imp
 | CSS grid layout for product cards | Claude | Asked for a responsive grid approach. Took the `auto-fill` + `minmax` pattern but customized breakpoints, spacing, and the OSU scarlet color scheme myself. |
 | CORS configuration | Copilot | Autocompleted the CORS middleware setup. I verified the correct origin port (5173 for Vite) and kept the policy scoped rather than using the suggested `AllowAnyOrigin()`. |
 
-### Prompts Used
-1. *"Create a .NET Web API controller for products with GET all and GET by id endpoints using an in-memory list"* — Used the controller structure, rewrote the sample data.
-2. *"React component that displays a product card with title, price, category, and seller name as props"* — Used as a starting point, changed from inline styles to CSS classes and added the Link wrapper for routing.
-3. *"How to set up CORS in .NET to allow requests from a React dev server"* — Followed the pattern but restricted the origin to localhost:5173 specifically.
-
-### Where I Relied on My Own Judgment
-- **Sample product data**: Wrote all 10 products myself to reflect realistic OSU student marketplace items (textbooks, dorm furniture, electronics, clothing) across 4 categories.
-- **Component hierarchy**: Followed the Atomic Design structure from my M2 component architecture doc — `CatalogPage` > `ProductList` > `ProductCard` — rather than a flat structure.
-- **Routing structure**: Decided on `/products/:id` for detail pages and used React Router's `useParams` hook.
-- **Styling decisions**: Designed the card hover effect and built a responsive layout without a CSS framework.
-- **API port configuration**: Matched the Vite dev server port to the CORS policy rather than using a wildcard origin.
-- **Error and empty states**: Decided to show distinct messages for loading, error, and empty states rather than a single fallback.
-
-### What I Rejected
-- AI suggested using Axios for HTTP requests — I stuck with the built-in `fetch` API to keep dependencies minimal for this milestone.
-- AI suggested adding search/filter functionality in the controller — I deferred that since it's not in the M3 scope and would add unnecessary complexity.
-- AI suggested using a separate service layer in the .NET project — I kept the in-memory data in the controller since we're replacing it with Entity Framework in M4 .
+### Milestone 4
+See [docs/ai-usage-m4.md](docs/ai-usage-m4.md) for detailed AI tool usage documentation for the shopping cart feature. GitHub Copilot was used for scaffolding and boilerplate; all business logic, error handling, optimistic updates, and integration were implemented manually.
