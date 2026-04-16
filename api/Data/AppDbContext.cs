@@ -1,15 +1,20 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using BuckeyeMarketplaceApi.Models;
 
 namespace BuckeyeMarketplaceApi.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +31,19 @@ public class AppDbContext : DbContext
             new Product { Id = 8, Title = "Nike Running Shoes (Size 10)", Description = "Nike Pegasus 40, barely worn. Bought wrong size online, only used twice.", Price = 65.00m, Category = "Clothing", SellerName = "Aisha R.", PostedDate = new DateTime(2026, 3, 1), ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop" },
             new Product { Id = 9, Title = "Intro to Organic Chemistry Textbook", Description = "Covers all major topics in organic chemistry. All pages intact, used for one semester.", Price = 20.00m, Category = "Textbooks", SellerName = "Jake T.", PostedDate = new DateTime(2026, 3, 2), ImageUrl = "https://images.unsplash.com/photo-1532634993-15f421e42ec0?w=400&h=300&fit=crop" },
             new Product { Id = 10, Title = "Logitech Wireless Mouse", Description = "Logitech M720 Triathlon. Multi-device Bluetooth mouse, great for studying.", Price = 30.00m, Category = "Electronics", SellerName = "Taylor M.", PostedDate = new DateTime(2026, 3, 3), ImageUrl = "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop" }
+        );
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasIndex(rt => rt.Token).IsUnique();
+            entity.HasIndex(rt => rt.UserId);
+            entity.Property(rt => rt.Token).HasMaxLength(200).IsRequired();
+            entity.Property(rt => rt.UserId).HasMaxLength(450).IsRequired();
+        });
+
+        modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole { Id = "role-admin", Name = "Admin", NormalizedName = "ADMIN", ConcurrencyStamp = "concurrency-admin" },
+            new IdentityRole { Id = "role-user", Name = "User", NormalizedName = "USER", ConcurrencyStamp = "concurrency-user" }
         );
     }
 }

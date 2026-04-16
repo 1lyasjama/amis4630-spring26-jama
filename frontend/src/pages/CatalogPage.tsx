@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Product } from "../types/Product";
 import ProductList from "../components/ProductList";
-
-const API_BASE = "http://localhost:5023/api";
+import { getProducts } from "../services/productService";
 
 function CatalogPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -10,13 +9,9 @@ function CatalogPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/products`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch products");
-        return res.json();
-      })
+    getProducts()
       .then((data) => setProducts(data))
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err instanceof Error ? err.message : "Failed to fetch products"))
       .finally(() => setLoading(false));
   }, []);
 

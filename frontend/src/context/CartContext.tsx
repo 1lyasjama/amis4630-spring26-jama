@@ -2,6 +2,7 @@ import { createContext, useContext, useReducer, useEffect, useCallback } from "r
 import type { ReactNode } from "react";
 import type { Cart, CartItem } from "../types/Cart";
 import * as cartService from "../services/cartService";
+import { useAuth } from "./AuthContext";
 
 // State shape
 interface CartState {
@@ -115,8 +116,13 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+  const { isAuthenticated } = useAuth();
 
   const refreshCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      dispatch({ type: "FETCH_SUCCESS", payload: { id: 0, userId: "", items: [], totalItems: 0, subtotal: 0, total: 0, createdAt: "", updatedAt: "" } });
+      return;
+    }
     dispatch({ type: "FETCH_START" });
     try {
       const cart = await cartService.getCart();
@@ -127,9 +133,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         payload: err instanceof Error ? err.message : "Failed to load cart",
       });
     }
-  }, []);
+  }, [isAuthenticated]);
 
-  // Load cart on mount
   useEffect(() => {
     refreshCart();
   }, [refreshCart]);

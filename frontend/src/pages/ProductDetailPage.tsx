@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import type { Product } from "../types/Product";
 import { useCart } from "../context/CartContext";
-
-const API_BASE = "http://localhost:5023/api";
+import { useAuth } from "../context/AuthContext";
+import { getProduct } from "../services/productService";
 
 function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,20 +12,23 @@ function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const { addToCart, state } = useCart();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API_BASE}/products/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Product not found");
-        return res.json();
-      })
+    if (!id) return;
+    getProduct(Number(id))
       .then((data) => setProduct(data))
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err instanceof Error ? err.message : "Product not found"))
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: `/products/${product.id}` } });
+      return;
+    }
     setAdding(true);
     await addToCart(product.id);
     setAdding(false);
@@ -56,7 +59,7 @@ function ProductDetailPage() {
             onClick={handleAddToCart}
             disabled={adding}
           >
-            {adding ? "Adding..." : "Add to Cart"}
+            {adding ? "Adding..." : isAuthenticated ? "Add to Cart" : "Sign in to add to cart"}
           </button>
           {state.successMessage && (
             <p className="success-message">{state.successMessage}</p>

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BuckeyeMarketplaceApi.Data;
@@ -8,9 +10,9 @@ namespace BuckeyeMarketplaceApi.Controllers;
 
 [ApiController]
 [Route("api/cart")]
+[Authorize]
 public class CartController : ControllerBase
 {
-    private const string CurrentUserId = "default-user";
     private readonly AppDbContext _context;
 
     public CartController(AppDbContext context)
@@ -18,7 +20,10 @@ public class CartController : ControllerBase
         _context = context;
     }
 
-    // GET: api/cart
+    private string CurrentUserId =>
+        User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new InvalidOperationException("Missing user id claim.");
+
     [HttpGet]
     public async Task<ActionResult<CartResponse>> GetCart()
     {
@@ -28,7 +33,19 @@ public class CartController : ControllerBase
             .FirstOrDefaultAsync(c => c.UserId == CurrentUserId);
 
         if (cart == null)
-            return NotFound();
+        {
+            return Ok(new CartResponse
+            {
+                Id = 0,
+                UserId = CurrentUserId,
+                Items = new List<CartItemResponse>(),
+                TotalItems = 0,
+                Subtotal = 0,
+                Total = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
 
         var response = new CartResponse
         {
@@ -54,16 +71,13 @@ public class CartController : ControllerBase
         return Ok(response);
     }
 
-    // POST: api/cart
     [HttpPost]
     public async Task<ActionResult<CartItemResponse>> AddToCart(AddToCartRequest request)
     {
-        // Verify the product exists
         var product = await _context.Products.FindAsync(request.ProductId);
         if (product == null)
             return NotFound(new { message = "Product not found." });
 
-        // Find or create cart for current user
         var cart = await _context.Carts
             .Include(c => c.Items)
             .FirstOrDefaultAsync(c => c.UserId == CurrentUserId);
@@ -74,7 +88,6 @@ public class CartController : ControllerBase
             _context.Carts.Add(cart);
         }
 
-        // Upsert: check if item already exists in cart
         var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == request.ProductId);
 
         if (existingItem != null)
@@ -108,20 +121,15 @@ public class CartController : ControllerBase
         return CreatedAtAction(nameof(GetCart), response);
     }
 
-    // PUT: api/cart/{cartItemId}
     [HttpPut("{cartItemId:int}")]
     public async Task<ActionResult<CartItemResponse>> UpdateCartItem(int cartItemId, UpdateCartItemRequest request)
     {
         var cartItem = await _context.CartItems
             .Include(ci => ci.Cart)
             .Include(ci => ci.Product)
-            .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
+            .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.Cart.UserId == CurrentUserId);
 
         if (cartItem == null)
-            return NotFound();
-
-        // Verify ownership
-        if (cartItem.Cart.UserId != CurrentUserId)
             return NotFound();
 
         cartItem.Quantity = request.Quantity;
@@ -142,19 +150,14 @@ public class CartController : ControllerBase
         return Ok(response);
     }
 
-    // DELETE: api/cart/{cartItemId}
     [HttpDelete("{cartItemId:int}")]
     public async Task<IActionResult> RemoveCartItem(int cartItemId)
     {
         var cartItem = await _context.CartItems
             .Include(ci => ci.Cart)
-            .FirstOrDefaultAsync(ci => ci.Id == cartItemId);
+            .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.Cart.UserId == CurrentUserId);
 
         if (cartItem == null)
-            return NotFound();
-
-        // Verify ownership
-        if (cartItem.Cart.UserId != CurrentUserId)
             return NotFound();
 
         cartItem.Cart.UpdatedAt = DateTime.UtcNow;
@@ -164,7 +167,6 @@ public class CartController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/cart/clear
     [HttpDelete("clear")]
     public async Task<IActionResult> ClearCart()
     {
@@ -173,7 +175,7 @@ public class CartController : ControllerBase
             .FirstOrDefaultAsync(c => c.UserId == CurrentUserId);
 
         if (cart == null)
-            return NotFound();
+            return NoContent();
 
         _context.CartItems.RemoveRange(cart.Items);
         cart.UpdatedAt = DateTime.UtcNow;

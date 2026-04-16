@@ -10,6 +10,18 @@ api/obj/
 frontend/node_modules/
 frontend/dist/
 
+# Test artifacts
+BuckeyeMarketplaceApi.Tests/bin/
+BuckeyeMarketplaceApi.Tests/obj/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+
+# Local Milestone notes (not part of submission)
+Milestone 5 Directions
+Milestone 5 progress
+
 # IDE
 .vs/
 .vscode/
