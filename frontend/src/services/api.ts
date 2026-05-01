@@ -1,4 +1,5 @@
-export const API_BASE = "http://localhost:5023/api";
+const RAW_API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5023";
+export const API_BASE = `${RAW_API_BASE.replace(/\/+$/, "")}/api`;
 
 const TOKEN_KEY = "buckeye.auth.token";
 const REFRESH_KEY = "buckeye.auth.refresh";

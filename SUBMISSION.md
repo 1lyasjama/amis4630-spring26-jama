@@ -1,7 +1,57 @@
-# Milestone 5 — Submission
+# Submission — Milestone 6 (final)
 
 **Repository:** https://github.com/1lyasjama/amis4630-spring26-jama
 **Branch graders should pull:** `main`
+**Tag:** `v1.0`
+
+## Live deployment (Milestone 6)
+
+| Component | URL                                                          |
+|-----------|--------------------------------------------------------------|
+| Frontend  | `https://buckeye-frontend-jama.azurewebsites.net`          |
+| API       | `https://buckeye-api-jama.azurewebsites.net`                 |
+| Swagger   | `https://buckeye-api-jama.azurewebsites.net/swagger`         |
+
+HTTPS is enforced on both services. The CI/CD pipelines in
+[.github/workflows/](.github/workflows/) ship every push to `main` to
+Azure (after running the full test suite).
+
+## Milestone 6 documentation index
+
+| Deliverable                | File                                       |
+|----------------------------|--------------------------------------------|
+| Comprehensive README       | [README.md](README.md)                     |
+| Deployment runbook         | [docs/deployment.md](docs/deployment.md)   |
+| Updated architecture       | [docs/system-architecture.md](docs/system-architecture.md) |
+| Updated database schema    | [docs/database-erd.md](docs/database-erd.md) |
+| User guide                 | [docs/user-guide.md](docs/user-guide.md)   |
+| Admin guide                | [docs/admin-guide.md](docs/admin-guide.md) |
+| E2E test plan              | [docs/test-plan.md](docs/test-plan.md)     |
+| QA report                  | [docs/qa-report.md](docs/qa-report.md)     |
+| AI reflection (M6)         | [docs/ai-reflection.md](docs/ai-reflection.md) |
+| AI usage summary           | [AI-USAGE.md](AI-USAGE.md)                 |
+| Changelog                  | [CHANGELOG.md](CHANGELOG.md)               |
+
+## Milestone 6 pre-submission checklist
+
+- [x] Frontend deployed to Azure Static Web Apps with HTTPS
+- [x] Backend deployed to Azure App Service with HTTPS
+- [x] Azure SQL Database provisioned and connected via App Service connection string
+- [x] All runtime secrets (`Jwt:Key`, connection string) live in App Service configuration
+- [x] CI workflow ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every push and PR
+- [x] Backend deploy workflow ([.github/workflows/deploy-api.yml](.github/workflows/deploy-api.yml)) deploys on push to `main`
+- [x] Frontend deploy workflow ([.github/workflows/deploy-frontend.yml](.github/workflows/deploy-frontend.yml)) deploys on push to `main`
+- [x] Tests gate every deploy
+- [x] Cross-browser sweep on Chrome, Firefox, Safari, Edge ([docs/qa-report.md](docs/qa-report.md))
+- [x] Mobile responsiveness verified on phone + tablet viewports
+- [x] M6 bug fixes documented in [docs/qa-report.md](docs/qa-report.md) and [CHANGELOG.md](CHANGELOG.md)
+- [x] AI tool reflection (2-3 pages) at [docs/ai-reflection.md](docs/ai-reflection.md)
+- [x] User guide and admin guide written
+- [x] README documents tech stack with versions, setup, deployment, env vars, Swagger link
+
+---
+
+# Milestone 5 — Submission (preserved for graders)
 
 ## Test credentials (seeded automatically on first run)
 
