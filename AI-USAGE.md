@@ -1,3 +1,74 @@
+# AI Usage — Milestones 5 & 6
+
+This file documents how AI tools were used in Milestones 5 and 6. The
+cross-milestone reflection (what worked, what didn't, lessons learned)
+lives at [docs/ai-reflection.md](docs/ai-reflection.md). Earlier
+milestones are recorded in the README's AI Tooling Disclosure section
+and in [docs/ai-usage-m4.md](docs/ai-usage-m4.md).
+
+## Milestone 6 — Production Deployment, CI/CD, Documentation
+
+### Tools used
+
+- **Claude Code (CLI agent).** Used for the GitHub Actions YAML drafts,
+  the deployment runbook, and as a writing partner for the user/admin
+  guides, AI reflection, and architecture docs.
+- **GitHub Copilot.** Used for autocomplete on the workflow YAML
+  (matrix steps, action versions) and on the SWA config JSON.
+
+### Where AI helped
+
+- **GitHub Actions workflows.** I described what each workflow needed
+  (build, test, deploy with the publish profile) and Claude drafted
+  the YAML. I tightened them: paths-based triggers so unrelated commits
+  don't redeploy, an `environment: production` annotation on the deploy
+  job, and a `build-and-test` job that gates the deploy job.
+- **Deployment runbook.** Claude drafted [docs/deployment.md](docs/deployment.md)
+  from a list of resources (resource group, SQL, App Service, SWA) plus
+  the secret-handling rules from the lab workshop. I edited for
+  accuracy against the actual resource names and added the troubleshooting
+  table from problems I'd actually hit.
+- **User guide and admin guide.** I described each page and the actions
+  available; Claude drafted the prose. I cut about a third of the
+  marketing-style language from the first draft.
+- **Architecture and ERD updates.** Claude regenerated the diagrams to
+  match what actually shipped (no more messaging/reviews/reports in the
+  M1 sketch). I confirmed entity relationships against the actual EF
+  Core models.
+- **AI reflection document.** I supplied the structure and the bullet
+  points; Claude wrote the prose. I edited every paragraph for honesty.
+
+### Where I overrode the AI
+
+- **Hardcoded URLs in the workflow.** The first draft of `deploy-api.yml`
+  embedded my App Service name in multiple places. I pulled it into a
+  workflow `env` block at the top so renaming is one line.
+- **Static Web App PR previews.** The initial `deploy-frontend.yml`
+  didn't include the `close_pull_request` job; I added it back so
+  preview environments are torn down on PR close.
+- **CORS config.** The first draft of the production CORS code used
+  `AllowAnyOrigin()`. I rejected that and made the production list
+  config-driven via `Cors:AllowedOrigins` while keeping the localhost
+  defaults for dev.
+- **Documentation tone.** Multiple drafts over-promised features (e.g.
+  "real-time notifications", "encrypted at rest" for things we don't
+  do). I cut the unfounded claims.
+
+### What I verified by hand
+
+- `dotnet build` clean (zero warnings).
+- `dotnet test` — 17 passing.
+- `npm test -- --run` — 13 passing.
+- `npx playwright test` — 1 passing (full happy path).
+- `npm run build` produces a clean production bundle that picks up
+  `VITE_API_URL`.
+- The CI workflow file is valid (paths, action versions, secret
+  references).
+- Manual scripted flows from [docs/test-plan.md](docs/test-plan.md) on
+  Chrome, Firefox, Safari, Edge, and a phone viewport.
+
+---
+
 # AI Usage — Milestone 5
 
 This milestone was built with Claude Code (Anthropic's CLI agent) acting as

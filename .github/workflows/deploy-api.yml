@@ -1,0 +1,65 @@
+name: Deploy API to Azure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - 'BuckeyeMarketplaceApi.Tests/**'
+      - 'amis4630-spring26-jama.sln'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: buckeye-api-jama
+  DOTNET_VERSION: '10.0.x'
+  PROJECT_PATH: api/BuckeyeMarketplaceApi.csproj
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore amis4630-spring26-jama.sln
+
+      - name: Build (Release)
+        run: dotnet build amis4630-spring26-jama.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test amis4630-spring26-jama.sln --configuration Release --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --no-build --output ./publish
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
+  deploy:
+    name: Deploy to Azure App Service
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./publish
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}

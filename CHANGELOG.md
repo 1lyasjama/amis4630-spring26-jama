@@ -2,6 +2,63 @@
 
 All notable changes to this project. Newest first.
 
+## Milestone 6 — Production Deployment, CI/CD, Documentation (April 30, 2026)
+
+### Added
+- **CI/CD pipelines.** Three GitHub Actions workflows in
+  [.github/workflows/](.github/workflows/):
+  - `ci.yml` — runs `dotnet test`, `npm test -- --run`, and a production
+    `npm run build` on every push and PR.
+  - `deploy-api.yml` — builds, tests, publishes, and deploys the .NET
+    API to Azure App Service via the publish profile in
+    `secrets.AZURE_API_PUBLISH_PROFILE`.
+  - `deploy-frontend.yml` — runs Vitest, then deploys the React bundle
+    to Azure Static Web Apps via `secrets.AZURE_STATIC_WEB_APPS_API_TOKEN`.
+    Includes a `close_pull_request` job that tears down PR preview
+    environments.
+- **Production deployment configuration.**
+  - `frontend/staticwebapp.config.json` — SPA fallback so deep links
+    survive refresh, plus production security headers
+    (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+    `Strict-Transport-Security`).
+  - `frontend/.env.production` — sets `VITE_API_URL` to the deployed
+    API hostname.
+- **Deployment runbook** at [docs/deployment.md](docs/deployment.md):
+  Azure CLI commands for one-time provisioning, "what goes where" secret
+  table, troubleshooting matrix.
+- **User guide** at [docs/user-guide.md](docs/user-guide.md): browse,
+  register, login, cart, checkout, order history, logout flows with
+  screenshots.
+- **Admin guide** at [docs/admin-guide.md](docs/admin-guide.md):
+  product CRUD and order status management, including the security
+  model.
+- **E2E test plan** at [docs/test-plan.md](docs/test-plan.md) and
+  matching **QA report** at [docs/qa-report.md](docs/qa-report.md):
+  scripted manual flows, cross-browser sweep (Chrome / Firefox /
+  Safari / Edge), mobile responsiveness sweep.
+- **AI tool reflection** at [docs/ai-reflection.md](docs/ai-reflection.md).
+- **Comprehensive README rewrite** with full tech stack (with
+  versions), local setup, deployment, env vars, Swagger link, endpoint
+  table, and a documentation index.
+- **Updated architecture and ERD** documents reflecting what actually
+  shipped (auth, cart, orders, refresh tokens) — superseding the
+  Milestone 1 sketches.
+
+### Changed
+- `frontend/src/services/api.ts` reads `import.meta.env.VITE_API_URL`
+  at build time (with a localhost fallback for dev), so the production
+  bundle hits the deployed API instead of localhost.
+- `api/Program.cs` CORS allow-list now reads additional origins from
+  the `Cors:AllowedOrigins` configuration array; localhost defaults
+  stay so dev keeps working without config.
+
+### Fixed (M6 testing)
+- **B1.** Hardcoded API base URL in the frontend (`http://localhost:5023`)
+  prevented the deployed bundle from reaching the production API.
+- **B2.** CORS allow-list was hardcoded to localhost only; the deployed
+  frontend was blocked by the browser.
+- **B3.** SPA deep links 404'd on refresh on Azure Static Web Apps.
+
 ## Milestone 5 — Authentication, Security & Order Processing (April 15, 2026)
 
 ### Added

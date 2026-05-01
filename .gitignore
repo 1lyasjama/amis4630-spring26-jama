@@ -21,6 +21,14 @@ frontend/playwright/.cache/
 # Local Milestone notes (not part of submission)
 Milestone 5 Directions
 Milestone 5 progress
+Milestone 5
+LAST AND FILE MILESTONE 6
+LAST AND FILE MILESTONE 6
+lab deployment workshop
+
+# Local env files
+frontend/.env.local
+frontend/.env.development.local
 
 # IDE
 .vs/
@@ -31,3 +39,8 @@ Milestone 5 progress
 # OS
 .DS_Store
 Thumbs.db
+
+# Build/deploy artifacts
+api/publish/
+api/deploy.zip
+frontend/frontend-deploy.zip

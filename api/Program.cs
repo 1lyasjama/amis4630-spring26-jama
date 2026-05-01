@@ -18,8 +18,18 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
+var azureSqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=BuckeyeMarketplace.db"));
+{
+    if (!string.IsNullOrWhiteSpace(azureSqlConnection))
+    {
+        options.UseSqlServer(azureSqlConnection);
+    }
+    else
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=BuckeyeMarketplace.db");
+    }
+});
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     {
@@ -83,7 +93,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:4173")
+        var allowedOrigins = new List<string> { "http://localhost:5173", "http://localhost:4173" };
+        var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+        if (configuredOrigins is { Length: > 0 })
+        {
+            allowedOrigins.AddRange(configuredOrigins);
+        }
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -112,11 +128,13 @@ app.Use(async (ctx, next) =>
 });
 
 app.MapControllers();
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (db.Database.IsRelational())
+    var providerName = db.Database.ProviderName ?? string.Empty;
+    if (providerName.Contains("Sqlite", StringComparison.OrdinalIgnoreCase))
     {
         await db.Database.MigrateAsync();
     }
